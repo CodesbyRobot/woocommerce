@@ -41,7 +41,9 @@ import 'dart:convert';
 import 'dart:io';
 import "dart:math";
 import "dart:core";
+
 import 'package:crypto/crypto.dart' as crypto;
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:woocommerce/models/customer_download.dart';
@@ -184,9 +186,28 @@ class WooCommerce {
       _authToken = authResponse.token;
       _localDbService.updateSecurityToken(_authToken);
       _urlHeader['Authorization'] = 'Bearer ${authResponse.token}';
-      return _authToken;
+      return authResponse;
     } else {
       throw new WooCommerceError.fromJson(json.decode(response.body));
+    }
+  }
+
+  Future<bool> validateToken() async {
+    _authToken = await _localDbService.getSecurityToken();
+    String token = 'Bearer ' + _authToken;
+    try {
+      var res = await Dio().post(
+        'http://localhost/enjoysaladnovembre/wp-json/jwt-auth/v1/token/validate',
+        options: Options(
+          headers: {HttpHeaders.authorizationHeader: token},
+        ),
+      );
+      if (res.statusCode == 200) {
+        return true;
+      }
+      return false;
+    } on DioError catch (e) {
+      return false;
     }
   }
 
@@ -201,8 +222,8 @@ class WooCommerce {
           await authenticateViaJWT(username: username, password: password);
       _printToLog('attempted token : ' + response.toString());
       if (response is String) {
-        int id = await fetchLoggedInUserId();
-        customer = await getCustomerById(id: id);
+        WooCustomer customer = await fetchLoggedInUserId();
+        customer = await getCustomerById(id: customer.id);
       }
       return customer;
     } catch (e) {
@@ -223,7 +244,7 @@ class WooCommerce {
   /// Fetches already authenticated user, using Jwt
   ///
   /// Associated endpoint : /wp-json/wp/v2/users/me
-  Future<int> fetchLoggedInUserId() async {
+  Future<WooCustomer> fetchLoggedInUserId() async {
     _authToken = await _localDbService.getSecurityToken();
     _urlHeader['Authorization'] = 'Bearer ' + _authToken;
     final response = await http.get(Uri.parse(this.baseUrl + URL_USER_ME),
@@ -236,7 +257,11 @@ class WooCommerce {
             code: 'wp_empty_user',
             message: "No user found or you dont have permission");
       _printToLog('account user fetch : ' + jsonStr.toString());
-      return jsonStr['id'];
+      WooCustomer customer = new WooCustomer(
+        id: jsonStr['id'],
+        firstName: jsonStr['name'],
+      );
+      return customer;
     } else {
       WooCommerceError err =
           WooCommerceError.fromJson(json.decode(response.body));
