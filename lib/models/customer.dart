@@ -51,7 +51,7 @@ class WooCustomer {
   Shipping shipping;
   bool isPayingCustomer;
   String avatarUrl;
-  List<MetaData> metaData;
+  List<WooCustomerMetaData> metaData;
   Links links;
 
   WooCustomer(
@@ -91,8 +91,9 @@ class WooCustomer {
         : null;
     isPayingCustomer = json['is_paying_customer'];
     avatarUrl = json['avatar_url'];
-    metaData =
-        (json['meta_data'] as List).map((i) => MetaData.fromJson(i)).toList();
+    metaData = (json['meta_data'] as List)
+        .map((i) => WooCustomerMetaData.fromJson(i))
+        .toList();
     links = json['_links'] != null ? new Links.fromJson(json['_links']) : null;
   }
 
