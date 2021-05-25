@@ -8,7 +8,7 @@ class MetaData {
   MetaData.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     key = json['key'];
-    value = json['value'];
+    value = json['value'].toString();
   }
 
   Map<String, dynamic> toJson() {
