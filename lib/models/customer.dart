@@ -31,8 +31,8 @@
 
  */
 
-import 'billing_details.dart';
-import 'shipping_details.dart';
+import 'billing.dart';
+import 'shipping.dart';
 import 'meta_data.dart';
 
 class WooCustomer {
@@ -51,7 +51,7 @@ class WooCustomer {
   Shipping shipping;
   bool isPayingCustomer;
   String avatarUrl;
-  List<WooCustomerMetaData> metaData;
+  List<MetaData> metaData;
   Links links;
 
   WooCustomer(
@@ -91,9 +91,8 @@ class WooCustomer {
         : null;
     isPayingCustomer = json['is_paying_customer'];
     avatarUrl = json['avatar_url'];
-    metaData = (json['meta_data'] as List)
-        .map((i) => WooCustomerMetaData.fromJson(i))
-        .toList();
+    metaData =
+        (json['meta_data'] as List).map((i) => MetaData.fromJson(i)).toList();
     links = json['_links'] != null ? new Links.fromJson(json['_links']) : null;
   }
 
@@ -131,9 +130,7 @@ class WooCustomer {
     }
     return data;
   }
-
-  @override
-  toString() => this.toJson().toString();
+  @override toString() => this.toJson().toString();
 }
 
 class Links {
@@ -144,13 +141,13 @@ class Links {
 
   Links.fromJson(Map<String, dynamic> json) {
     if (json['self'] != null) {
-      self = new List<Self>();
+      List<Self> self = [];
       json['self'].forEach((v) {
         self.add(new Self.fromJson(v));
       });
     }
     if (json['collection'] != null) {
-      collection = new List<Collection>();
+      List<Collection> collection = [];
       json['collection'].forEach((v) {
         collection.add(new Collection.fromJson(v));
       });

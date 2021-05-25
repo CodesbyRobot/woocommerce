@@ -52,7 +52,7 @@ class WooProduct {
   final String priceHtml;
   final bool onSale;
   final bool purchasable;
-  final int totalSales;
+  final String totalSales;
   final bool virtual;
   final bool downloadable;
   final List<WooProductDownload> downloads;
@@ -164,13 +164,13 @@ class WooProduct {
         description = json['description'],
         shortDescription = json['short_description'],
         sku = json['sku'],
-        price = json['price'],
+        price =json['price'].toString(),
         regularPrice = json['regular_price'],
         salePrice = json['sale_price'],
         priceHtml = json['price_html'],
         onSale = json['on_sale'],
         purchasable = json['purchasable'],
-        totalSales = json['total_sales'],
+        totalSales = json['total_sales'].toString(),
         virtual = json['virtual'],
         downloadable = json['downloadable'],
         downloads = (json['downloads'] as List)
@@ -206,12 +206,9 @@ class WooProduct {
         categories = (json['categories'] as List)
             .map((i) => WooProductCategory.fromJson(i))
             .toList(),
-        tags = (json['tags'] as List)
-            .map((i) => WooProductItemTag.fromJson(i))
-            .toList(),
-        images = (json['images'] as List)
-            .map((i) => WooProductImage.fromJson(i))
-            .toList(),
+        tags = (json['tags'] as List).map((i) => WooProductItemTag.fromJson(i)).toList(),
+        images =
+            (json['images'] as List).map((i) => WooProductImage.fromJson(i)).toList(),
         attributes = (json['attributes'] as List)
             .map((i) => WooProductItemAttribute.fromJson(i))
             .toList(),
@@ -225,8 +222,7 @@ class WooProduct {
             .map((i) => MetaData.fromJson(i))
             .toList();
 
-  @override
-  toString() => "{id: $id}, {name: $name}, {price: $price}, {status: $status}";
+  @override toString() => "{id: $id}, {name: $name}, {price: $price}, {status: $status}";
 }
 
 class WooProductItemTag {
@@ -242,8 +238,7 @@ class WooProductItemTag {
         slug = json['slug'];
 
   Map<String, dynamic> toJson() => {'id': id, 'name': name, 'slug': slug};
-  @override
-  toString() => 'Tag: $name';
+  @override toString() => 'Tag: $name';
 }
 
 class WooProductDefaultAttribute {
@@ -331,8 +326,8 @@ class WooProductItemAttribute {
   final bool variation;
   final List<String> options;
 
-  WooProductItemAttribute(this.id, this.name, this.position, this.visible,
-      this.variation, this.options);
+  WooProductItemAttribute(this.id, this.name, this.position, this.visible, this.variation,
+      this.options);
 
   WooProductItemAttribute.fromJson(Map<String, dynamic> json)
       : id = json['id'],
@@ -340,7 +335,7 @@ class WooProductItemAttribute {
         position = json['position'],
         visible = json['visible'],
         variation = json['variation'],
-        options = json['options'].cast<String>();
+        options = json['options'] != null ? json['options'].cast<String>() : [];
 
   Map<String, dynamic> toJson() => {
         'id': id,
